@@ -1,4 +1,5 @@
-#!/usr/bin/env groovy
+
+
 import static java.lang.System.*
 import java.util.regex.Pattern;
 import java.util.*;
