@@ -1,3 +1,4 @@
+#!/bin/groovy
 package hipchat_notifier
 import static java.lang.System.*
 
@@ -13,7 +14,8 @@ import com.hipchat.api.v1.*
 
 @Slf4j
 class HipChatPostReceiveHook {
-    def ConfigObject config
+    def chatRoom
+    def token
     def startRevision
     def endRevision
     def branch
@@ -111,6 +113,8 @@ class HipChatPostReceiveHook {
         println args
         def rev1Proc = ("git rev-parse " + args[0]).execute()
         def rev2Proc = ("git rev-parse " + args[1]).execute()
+        def chatRoom = ("git config hipchat.room ").execute()
+        def token = ("git config hipchat.token ").execute()        
         rev1Proc.waitFor()
         rev2Proc.waitFor()
 
@@ -119,9 +123,11 @@ class HipChatPostReceiveHook {
 
         def branch = args[2]
 
-        def config = new ConfigSlurper().parse(new File('hook.properties').toURL())
 
-        def hook = new HipChatPostReceiveHook(config)
+
+        def hook = new HipChatPostReceiveHook()
+        hook.chatRoom = chatRoom
+        hook.token = token;
         hook.startRevision = rev1
         hook.endRevision = rev2
         hook.branch = branch
