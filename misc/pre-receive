@@ -37,16 +37,18 @@ class CommitMessageVerificator {
 		String[] commitTable = commitMessage0.split('\n');
 		for (String commitMessage in commitTable) {
 			commits.add(commitMessage);
-
+			def boolean errorFound = false;
 			infoM "Analyse du message de commit.... $commitMessage"
 			if (!commitMessage) {
 		           errorM 'Commit message is empty'
+		           errorFound = true
 			} else {
 			   okM "Commit message not empty" 
 			}
 	
 			if (commitMessage.length() < MIN_SIZE) {
 			  errorM "Commit message too small ${commitMessage.length()} < $MIN_SIZE"
+		           errorFound = true			  
 			} else {
 			  okM "Commit minimal size $MIN_SIZE"
 			}
@@ -55,14 +57,15 @@ class CommitMessageVerificator {
 			def commit = commitMessage.replace('\r', ' ').replace('\n', ' ');		
 			def matcher = redminePattern.matcher(commit);
 		        if (!matcher.matches()) {
-		          warnM "Commit message does not contains a redmine ticket."
+		          errorM "Commit message does not contains a redmine ticket."
+		           errorFound = true		          
 		        } else {
 		          okM 'Commit contains an issue ' + matcher.group(1)
 		        }			
-	
+			if (errorFound) exit -1
 		}	
 		if (commits.size() != commitTable.length) {
-			errorM "Presence of duplicated commit message!"
+			warnM "Presence of duplicated commit message!"
 		}		
 		exit 0
 
